@@ -6,6 +6,8 @@ from ..forms import keyissueForm
 from django.urls import reverse_lazy
 from django.urls import reverse
 from django.http import Http404
+from django.contrib.auth.decorators import permission_required
+from django.shortcuts import render, get_object_or_404, redirect
 #from braces import SuperuserRequiredMixin
 
 
@@ -267,3 +269,18 @@ class keyissueDeleteView(DeleteView):
 
     def get_success_url(self):
         return reverse("keys:keyissue_list")
+
+
+@permission_required("admin.can_add_log_entry")
+def keyissue_deleteAll(request):
+    template = "keys/keyissue_deleteAll.html"
+
+    prompt = {
+        'warning': 'Once deleted, you will not be able to retrieve any of the records. Ensure that you are absolutely sure about you decition before you delete.'}
+
+    if request.method == "GET":
+        return render(request, template, prompt)
+
+    keyissue.objects.all().delete()
+    response = redirect('/keys/keyissue/')
+    return response

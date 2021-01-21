@@ -30,9 +30,11 @@
           <li class="nav-item">
             <a class="nav-link" href="/keys/keyissue">KeyIssue</a>
           </li>
+         <li class="nav-item">
+            <a class="nav-link" href="/keys/reports">reports</a>
+           <li class="nav-item">
           {% if request.user.is_authenticated %}
-          <li class="nav-item">
-            <a class="nav-link" href="/accounts/logout">Logout</a>
+            <a class="nav-link" href="/keys/logout">Logout</a>
           </li>
           {% else %}
           <li class="nav-item">

@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from ..views import (buildingListView, buildingCreateView, buildingDetailView,
-                     buildingUpdateView, buildingDeleteView)
+                     buildingUpdateView, buildingDeleteView, building_deleteAll )
 from django.contrib.auth.decorators import login_required
 
 
@@ -8,6 +8,10 @@ urlpatterns = [
     url(r'^create/$',  # NOQA
         buildingCreateView.as_view(),
         name="building_create"),
+
+    url(r'^building_deleteAll/$',  # NOQA
+        building_deleteAll,
+        name="building_deleteAll"),
 
     url(r'^(?P<pk>\d+)/update/$',
         buildingUpdateView.as_view(),

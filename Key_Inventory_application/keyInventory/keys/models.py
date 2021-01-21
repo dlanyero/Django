@@ -24,7 +24,7 @@ class keytype(models.Model):
 class key(models.Model):
     identifier = models.CharField(max_length=255, unique=True)
     number = models.IntegerField(null=False)
-    keytype_id = models.ForeignKey(keytype, related_name="keytype_id", on_delete=models.CASCADE, blank=True, null=True)
+    keytype_id = models.ForeignKey(keytype,  on_delete=models.CASCADE, blank= False, null=False)
 
     def _str_(self):
         return self.identifier
@@ -42,8 +42,8 @@ class keystatus(models.Model):
 
 class keyissue(models.Model):
     identifier = models.CharField(max_length=255, unique=True)
-    key_id = models.ForeignKey(key, on_delete=models.CASCADE)
-    keystatus_id = models.ForeignKey(keystatus, on_delete=models.CASCADE)
+    key_id = models.ForeignKey(key, on_delete=models.CASCADE, blank=False, null=False)
+    keystatus_id = models.ForeignKey(keystatus, on_delete=models.CASCADE, blank=False, null=False)
     start_date = models.DateTimeField(null=True)
     End_date = models.DateTimeField(null=True)
     ownder_id = models.CharField(max_length=6, null=True)

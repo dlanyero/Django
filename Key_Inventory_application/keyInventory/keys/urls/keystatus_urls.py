@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from ..views import (keystatusListView, keystatusCreateView, keystatusDetailView,
-                     keystatusUpdateView, keystatusDeleteView)
+                     keystatusUpdateView, keystatusDeleteView, keystatus_deleteAll)
 from django.contrib.auth.decorators import login_required
 
 
@@ -8,6 +8,10 @@ urlpatterns = [
     url(r'^create/$',  # NOQA
         keystatusCreateView.as_view(),
         name="keystatus_create"),
+
+    url(r'^keystatus_deleteAll/$',  # NOQA
+        keystatus_deleteAll,
+        name="keystatus_deleteAll"),
 
     url(r'^(?P<pk>\d+)/update/$',
         keystatusUpdateView.as_view(),

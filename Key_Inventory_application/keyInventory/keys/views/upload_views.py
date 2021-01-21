@@ -1,8 +1,10 @@
+from __future__ import print_function
 import csv, io
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render, get_object_or_404, redirect
 from ..models import building, keytype, key, keystatus, keyissue
+
 from ..forms import buildingForm
 
 
@@ -21,7 +23,7 @@ def buildings_upload(request):
     data_set = csv_file.read().decode('UTF-8')
     io_string = io.StringIO(data_set)
     next(io_string)
-    for column in csv.reader(io_string, delimiter = ',', quotechar="|"):
+    for column in csv.reader(io_string, delimiter='|', quotechar = ";"):
         _, created= building.objects.update_or_create(
             identifier=column[0],
             name=column[1],
@@ -49,14 +51,22 @@ def keytype_upload(request):
     data_set = csv_file.read().decode('UTF-8')
     io_string = io.StringIO(data_set)
     next(io_string)
-    for column in csv.reader(io_string, delimiter=',', quotechar="|"):
-        _, created= keytype.objects.update_or_create(
-            identifier=column[0],
-            code=column[1],
-            manu_info=column[2],
-            description=column[3],
-            building_id=building.objects.get(identifier=column[4])
-        )
+    for column in csv.reader(io_string, delimiter='|', quotechar = ";"):
+        if column[4] == "":
+            _, created = keytype.objects.update_or_create(
+                identifier=column[0],
+                code=column[1],
+                manu_info=column[2],
+                description=column[3]
+            )
+        else:
+            _, created= keytype.objects.update_or_create(
+                identifier=column[0],
+                code=column[1],
+                manu_info=column[2],
+                description=column[3],
+                building_id=building.objects.get(identifier=column[4])
+            )
     context = {}
     return render(request, template, context)
 
@@ -75,12 +85,15 @@ def key_upload(request):
     data_set = csv_file.read().decode('UTF-8')
     io_string = io.StringIO(data_set)
     next(io_string)
-    for column in csv.reader(io_string, delimiter = ',', quotechar="|"):
-        _, created= key.objects.update_or_create(
-            identifier=column[0],
-            number=column[1]
-
-        )
+    for column in csv.reader(io_string, delimiter='|', quotechar = ";"):
+        # Only the non empty columns are going to be added for now. Remember to think about what you would like to do about the empty ones later,
+        if column[2] != "":
+            _, created= key.objects.update_or_create(
+                identifier=column[0],
+                number=column[1],
+                keytype_id = keytype.objects.get(identifier=column[2])
+            )
+        # Use try catch to handle this exception.
 
     context = {}
     return render(request, template, context)
@@ -100,7 +113,7 @@ def keystatus_upload(request):
     data_set = csv_file.read().decode('UTF-8')
     io_string = io.StringIO(data_set)
     next(io_string)
-    for column in csv.reader(io_string, delimiter = ',', quotechar="|"):
+    for column in csv.reader(io_string, delimiter='|', quotechar = ";"):
         _, created= keystatus.objects.update_or_create(
             identifier=column[0],
             label=column[1],
@@ -126,17 +139,19 @@ def keyissue_upload(request):
     data_set = csv_file.read().decode('UTF-8')
     io_string = io.StringIO(data_set)
     next(io_string)
-    for column in csv.reader(io_string, delimiter = ',', quotechar="|"):
-        _, created= keyissue.objects.update_or_create(
-            identifier=column[0],
-            key_id=column[1],
-            keystatus_id=column[2],
-            start_date=column[3],
-            End_date=column[4],
-            ownder_id=column[5],
-            person_id = column[6],
-            note=column[7]
-        )
+    for column in csv.reader(io_string, delimiter='|', quotechar = ";"):
+        if column[1] != "" and column[2] != "":
+            _, created= keyissue.objects.update_or_create(
+                identifier=column[0],
+                key_id= key.objects.get(identifier=column[1]),
+                keystatus_id=keystatus.objects.get(identifier=column[2]),
+                start_date=column[3],
+                End_date=column[4],
+                ownder_id=column[5],
+                person_id = column[6],
+                note=column[7]
+            )
+        #Find a sage way to notify the user incase there are exceptions on some rows regarding that constraint.
 
     context = {}
     return render(request, template, context)

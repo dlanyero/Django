@@ -6,6 +6,8 @@ from ..forms import buildingForm
 from django.urls import reverse_lazy
 from django.urls import reverse
 from django.http import Http404
+from django.contrib.auth.decorators import permission_required
+from django.shortcuts import render, get_object_or_404, redirect
 #from braces import SuperuserRequiredMixin
 
 
@@ -16,7 +18,7 @@ class buildingListView(ListView):
     context_object_name = "building_list"
     allow_empty = True
     page_kwarg = 'page'
-    paginate_orphans = 0
+    paginate_orphans = 4
 
     def __init__(self, **kwargs):
         super(buildingListView, self).__init__(**kwargs)
@@ -267,3 +269,17 @@ class buildingDeleteView(DeleteView):
 
     def get_success_url(self):
         return reverse("keys:building_list")
+
+@permission_required("admin.can_add_log_entry")
+def building_deleteAll(request):
+    template = "keys/building_deleteAll.html"
+
+    prompt = {
+        'warning': 'Once deleted, you will not be able to retrieve any of the records. Ensure that you are absolutely sure about you decition before you delete.'}
+
+    if request.method == "GET":
+        return render(request, template, prompt)
+
+    building.objects.all().delete()
+    response = redirect('/keys/building/')
+    return response
